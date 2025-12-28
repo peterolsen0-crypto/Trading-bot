@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trading Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <h1>Trading Dashboard</h1>
+        <div class="sub" id="baseUrl">—</div>
+      </div>
+      <div class="right">
+        <div class="chip"><span id="dot" class="dot"></span><span id="statusText">Connecting…</span></div>
+        <button class="btn" id="btnRefresh">Refresh</button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <!-- Capital-style P&L / Equity -->
+      <div class="card col-3">
+        <h2>P&amp;L (currency)</h2>
+        <div class="kpi">
+          <div id="unreal" class="val">—</div>
+          <div class="meta">Account P&amp;L</div>
+        </div>
+      </div>
+
+      <div class="card col-3">
+        <h2>Equity (currency)</h2>
+        <div class="kpi">
+          <div id="equity" class="val">—</div>
+          <div class="meta">Funds + P&amp;L</div>
+        </div>
+      </div>
+
+      <!-- Your DB stats -->
+      <div class="card col-3">
+        <h2>Realized P/L (points)</h2>
+        <div class="kpi">
+          <div id="realized" class="val">—</div>
+          <div class="meta">Closed trades</div>
+        </div>
+      </div>
+
+      <div class="card col-3">
+        <h2>Win rate</h2>
+        <div class="kpi">
+          <div id="winrate" class="val">—</div>
+          <div class="meta"><span id="wl">—</span></div>
+        </div>
+      </div>
+
+      <div class="card col-3">
+        <h2>Runtime</h2>
+        <div class="kpi">
+          <div id="runtime" class="val">—</div>
+          <div class="meta">Auto refresh: 5s</div>
+        </div>
+      </div>
+
+      <div class="card col-7">
+        <h2>Equity curve (points)</h2>
+        <canvas id="eqChart" height="110"></canvas>
+      </div>
+
+      <div class="card col-5">
+        <h2>Open positions</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>EPIC</th><th>Dir</th><th>Size</th><th>Level</th><th>Stop</th><th>uP/L</th>
+              </tr>
+            </thead>
+            <tbody id="posBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card col-6">
+        <h2>Recent trades</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th><th>EPIC</th><th>Dir</th><th>Size</th><th>P/L pts</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="trBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card col-6">
+        <h2>Recent events</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th><th>Type</th><th>EPIC</th><th>Action</th><th>OK</th>
+              </tr>
+            </thead>
+            <tbody id="evBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      P&amp;L/Equity kommer fra konto-nivå (Capital UI). Realized + equity curve (points) kommer fra din trade-logg.
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
