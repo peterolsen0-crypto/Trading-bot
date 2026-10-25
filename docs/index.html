@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Test en enkel moving-average-strategi med lokal papirhandel og syntetiske priser." />
+    <meta name="theme-color" content="#0b1020" />
+    <title>Crossover Lab — papirhandel</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="Crossover Lab hjem">
+          <span class="brand-icon" aria-hidden="true">C</span>
+          <span>Crossover <strong>Lab</strong></span>
+        </a>
+        <div class="top-status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Starter simulering</span>
+          <span class="mode-tag">PAPIRHANDEL</span>
+        </div>
+      </header>
+
+      <main id="top">
+        <section class="intro">
+          <div>
+            <p class="eyebrow">INTERAKTIV STRATEGIDEMO</p>
+            <h1>Se signalene.<br /><span>Test strategien.</span></h1>
+            <p class="intro-copy">Juster innstillingene og følg en enkel glidende-gjennomsnitt-strategi på syntetiske priser.</p>
+          </div>
+          <div class="safety-note"><span aria-hidden="true">◉</span> Bare simulering. Ingen livekurser eller ekte ordre.</div>
+        </section>
+
+        <section class="dashboard" aria-label="Tradingdemo">
+          <aside class="panel settings-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">KONTROLLER</p>
+                <h2>Innstillinger</h2>
+              </div>
+              <button class="text-button" id="resetButton" type="button">Tilbakestill</button>
+            </div>
+
+            <form id="settingsForm">
+              <label class="field">
+                <span>Startkapital <small>USD</small></span>
+                <input id="startingCash" type="number" min="1" step="100" value="10000" required />
+              </label>
+              <label class="field">
+                <span>Startkurs <small>USD</small></span>
+                <input id="startingPrice" type="number" min="1" step="1" value="100" required />
+              </label>
+              <div class="field-row">
+                <label class="field">
+                  <span>Raskt snitt <small>priser</small></span>
+                  <input id="fastWindow" type="number" min="2" max="89" step="1" value="5" required />
+                </label>
+                <label class="field">
+                  <span>Langt snitt <small>priser</small></span>
+                  <input id="slowWindow" type="number" min="3" max="89" step="1" value="14" required />
+                </label>
+              </div>
+              <div class="field-row">
+                <label class="field">
+                  <span>Aksjer per ordre</span>
+                  <input id="quantity" type="number" min="1" step="1" value="10" required />
+                </label>
+                <label class="field">
+                  <span>Gebyr <small>% per ordre</small></span>
+                  <input id="feePercent" type="number" min="0" max="10" step="0.05" value="0.1" required />
+                </label>
+              </div>
+              <label class="field">
+                <span>Simulert volatilitet <small>%</small></span>
+                <input id="volatility" type="number" min="0" max="10" step="0.1" value="0.8" required />
+              </label>
+              <label class="field">
+                <span>Prisoppdatering <small>millisekunder</small></span>
+                <input id="interval" type="number" min="100" max="10000" step="100" value="1000" required />
+              </label>
+              <div class="button-stack">
+                <button class="button primary" id="startButton" type="submit">Start live-demo</button>
+                <button class="button secondary" id="pauseButton" type="button">Pause</button>
+                <button class="button secondary" id="historyButton" type="button">Kjør 90-prisers eksempel</button>
+              </div>
+            </form>
+
+            <div class="mini-note">Endre feltene og trykk <b>Start live-demo</b> for å bruke de nye verdiene. Prisene lages lokalt i nettleseren.</div>
+          </aside>
+
+          <div class="main-column">
+            <section class="metric-grid" aria-label="Simuleringsresultater">
+              <article class="metric-card"><span>SIMULERT KURS</span><strong id="currentPrice">$100.00</strong><small id="dayLabel">Dag 1</small></article>
+              <article class="metric-card"><span>PORTEFØLJEVERDI</span><strong id="portfolioValue">$10,000.00</strong><small>Kontanter + posisjon</small></article>
+              <article class="metric-card"><span>RESULTAT</span><strong id="profitLoss" class="positive">+$0.00</strong><small id="returnPercent">+0.00%</small></article>
+              <article class="metric-card"><span>HANDELSRUNDER</span><strong id="roundTrips">0</strong><small id="feeTotal">Gebyrer: $0.00</small></article>
+            </section>
+
+            <section class="panel chart-panel">
+              <div class="section-heading chart-heading">
+                <div><p class="eyebrow">SIMULERT KURSUTVIKLING</p><h2>Pris og signaler</h2></div>
+                <div class="legend"><span><i class="legend-price"></i>Pris</span><span><i class="legend-fast"></i>Raskt snitt</span><span><i class="legend-slow"></i>Langt snitt</span></div>
+              </div>
+              <div class="chart-wrap"><canvas id="priceChart" role="img" aria-label="Graf over simulerte priser, glidende gjennomsnitt og handler"></canvas></div>
+              <div class="chart-footer"><span><i class="buy-key">▲</i> Kjøp</span><span><i class="sell-key">▼</i> Salg</span><span id="chartNote">Prisene er syntetiske</span></div>
+            </section>
+
+            <section class="panel explainer">
+              <div class="section-heading"><div><p class="eyebrow">SLIK LESER DU DEMOEN</p><h2>Hva utløser en handel?</h2></div></div>
+              <div class="signal-grid">
+                <article><span class="signal-number">01</span><h3>Beregn snittene</h3><p>Raskt snitt er gjennomsnittet av de siste korte prisene. Langt snitt bruker det lengre tidsvinduet.</p></article>
+                <article><span class="signal-number buy-text">02 · KJØP</span><h3>Kryss opp</h3><p>Kjøp signaliseres når raskt snitt krysser opp over langt snitt. Ordren simuleres ved neste pris.</p></article>
+                <article><span class="signal-number sell-text">03 · SELG</span><h3>Kryss ned</h3><p>Salg signaliseres når raskt snitt krysser ned under langt snitt. Botten selger bare hvis den eier aksjer.</p></article>
+              </div>
+              <div class="rule-note">Én posisjon om gangen · ingen shorting eller belåning · gebyr på hvert kjøp og salg</div>
+            </section>
+
+            <section class="panel trades-panel">
+              <div class="section-heading"><div><p class="eyebrow">PAPIRHANDEL</p><h2>Handelslogg</h2></div><span class="trade-count" id="orderCount">0 ordre</span></div>
+              <div class="table-scroll">
+                <table>
+                  <thead><tr><th>Dag</th><th>Signal</th><th>Simulert kurs</th><th>Antall</th><th>Gebyr</th><th>Kontanter etterpå</th></tr></thead>
+                  <tbody id="tradeLog"><tr class="empty-row"><td colspan="6">Venter på første signal. Du kan også justere innstillingene.</td></tr></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer"><span>Crossover Lab · lokal simulering i nettleseren</span><span>Ingen data sendes til en server.</span></footer>
+    </div>
+  </body>
+</html>
+
